@@ -1,0 +1,13 @@
+/ {
+    leds {
+        compatible = "gpio-leds";
+        run_led: led_pd1 {
+            gpios = <&gpiob 3 GPIO_ACTIVE_HIGH>;
+            label = "Run LED";
+        };
+        err_led: led_pd0 {
+            gpios = <&gpiob 4 GPIO_ACTIVE_HIGH>;
+            label = "Error LED";
+        };
+    };
+};
