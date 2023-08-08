@@ -1,4 +1,6 @@
 *.original
 *.autosave
 *.slxc
-slprj/*
+slprj
+build/*
+.vscode
