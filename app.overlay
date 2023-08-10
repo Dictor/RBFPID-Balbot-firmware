@@ -1,3 +1,17 @@
+&i2c1 {
+    mpu9250@68 {
+        compatible = "invensense,mpu9250";
+        reg = <0x68>;
+		status = "okay";
+		irq-gpios = <&gpiob 1 GPIO_ACTIVE_HIGH>;
+        gyro-sr-div = <0>;
+        gyro-dlpf = <250>;
+        gyro-fs = <250>;
+        accel-fs = <2>;
+        accel-dlpf = "99";
+    };
+};
+
 / {
     leds {
         compatible = "gpio-leds";
