@@ -17,7 +17,7 @@ extern const struct device *imu;
 
 int CheckHardware();
 int InitHardware();
-int ReadIMU(std::array<double, 3> &accel, std::array<double, 3> &gyro);
+int ReadIMU(std::array<double, 3> &accel, std::array<double, 3> &gyro, std::array<double, 3> &magn);
 
 };  // namespace hardware
 };  // namespace RbfpidBalbot

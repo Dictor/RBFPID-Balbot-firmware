@@ -37,8 +37,8 @@ int hardware::InitHardware() {
   return 0;
 }
 
-int hardware::ReadIMU(std::array<double, 3> &accel, std::array<double, 3> &gyro) {
-  struct sensor_value tmp_a[3], tmp_g[3];
+int hardware::ReadIMU(std::array<double, 3> &accel, std::array<double, 3> &gyro, std::array<double, 3> &magn) {
+  struct sensor_value tmp_a[3], tmp_g[3], tmp_m[3];
   int rc = sensor_sample_fetch(hardware::imu);
 
   if (rc == 0) {
@@ -48,9 +48,13 @@ int hardware::ReadIMU(std::array<double, 3> &accel, std::array<double, 3> &gyro)
     rc = sensor_channel_get(hardware::imu, SENSOR_CHAN_GYRO_XYZ, tmp_g);
   }
   if (rc == 0) {
+    rc = sensor_channel_get(hardware::imu, SENSOR_CHAN_MAGN_XYZ, tmp_m);
+  }
+  if (rc == 0) {
     for (int i = 0; i < 3; i++) {
       accel[i] = sensor_value_to_double(&tmp_a[i]);
       gyro[i] = sensor_value_to_double(&tmp_g[i]);
+      magn[i] = sensor_value_to_double(&tmp_m[i]);
     }
   } else {
     LOG_ERR("sample fetch/get failed: %d\n", rc);

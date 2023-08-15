@@ -28,15 +28,12 @@ void AppMain(void) {
   LOG_INF("application started");
   LOG_INF("RBF-PID Balbot");
 
-  const int dt_ms = 10;
-  std::array<double, 3> d_accel, d_gyro, euler;
-  std::array<float, 3> f_accel, f_gyro;
-  posture::MahonyAHRS mahony(dt_ms);
-
+  std::array<double, 3> d_accel, d_gyro, d_magn, euler;
+  std::array<float, 3> f_accel, f_gyro, f_magn;
   for (;;) {
     k_sleep(K_MSEC(dt_ms));
 
-    if (int ret = hardware::ReadIMU(d_accel, d_gyro) < 0) {
+    if (int ret = hardware::ReadIMU(d_accel, d_gyro, d_magn) < 0) {
       LOG_ERR("fail to read IMU, ret=%d", ret);
       continue;
     }
@@ -44,9 +41,10 @@ void AppMain(void) {
     for (int i = 0; i < 3; i++) {
       f_accel[i] = (float)d_accel[i];
       f_gyro[i] = (float)d_accel[i];
+      f_magn[i] = (float)d_magn[i];
     }
 
-    mahony.Update(f_gyro[0], f_gyro[1], f_gyro[2], f_accel[0], f_accel[1], f_accel[2]);
+    mahony.Update(f_gyro[0], f_gyro[1], f_gyro[2], f_accel[0], f_accel[1], f_accel[2], f_magn[0], f_magn[1], f_magn[2]);
     euler = mahony.GetEuler();
     LOG_INF("r %f p %f y %f", euler[0], euler[1], euler[2]);
   }
