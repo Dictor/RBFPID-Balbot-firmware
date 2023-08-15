@@ -34,6 +34,7 @@ class MahonyAHRS {
   void Update(float gx, float gy, float gz, float ax, float ay, float az,
               float mx, float my, float mz);
   array<float, 4> GetQuaternion();
+  array<double, 3> GetEuler();
 };
 };  // namespace posture
 };  // namespace RbfpidBalbot

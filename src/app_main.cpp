@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "../inc/hardware.h"
+#include "../inc/posture.h"
 
 LOG_MODULE_REGISTER(app_main);
 
@@ -27,8 +28,26 @@ void AppMain(void) {
   LOG_INF("application started");
   LOG_INF("RBF-PID Balbot");
 
-  for (;;) {
-    k_sleep(K_MSEC(500));
+  const int dt_ms = 10;
+  std::array<double, 3> d_accel, d_gyro, euler;
+  std::array<float, 3> f_accel, f_gyro;
+  posture::MahonyAHRS mahony(dt_ms);
 
+  for (;;) {
+    k_sleep(K_MSEC(dt_ms));
+
+    if (int ret = hardware::ReadIMU(d_accel, d_gyro) < 0) {
+      LOG_ERR("fail to read IMU, ret=%d", ret);
+      continue;
+    }
+
+    for (int i = 0; i < 3; i++) {
+      f_accel[i] = (float)d_accel[i];
+      f_gyro[i] = (float)d_accel[i];
+    }
+
+    mahony.Update(f_gyro[0], f_gyro[1], f_gyro[2], f_accel[0], f_accel[1], f_accel[2]);
+    euler = mahony.GetEuler();
+    LOG_INF("r %f p %f y %f", euler[0], euler[1], euler[2]);
   }
 }

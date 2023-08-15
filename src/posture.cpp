@@ -1,10 +1,12 @@
 #include "../inc/posture.h"
 
 #include <zephyr/logging/log.h>
+
 #include <cmath>
 
 LOG_MODULE_REGISTER(posture);
 
+using namespace std;
 using namespace RbfpidBalbot;
 using namespace RbfpidBalbot::posture;
 
@@ -200,6 +202,39 @@ float MahonyAHRS::invSqrt(float x) {
   return y;
 }
 
-array<float, 4> MahonyAHRS::GetQuaternion() {
-    return q_;
+array<float, 4> MahonyAHRS::GetQuaternion() { return q_; }
+
+// from :
+// https://github.com/brztitouan/euler-angles-quaternions-library-conversion/blob/fa075d741d6aa84c02a3052d61116e04e5ec7943/src/euler.cpp#L30
+// TODO : Update LICENSE about it
+array<double, 3> MahonyAHRS::GetEuler() {
+  const double q00 = q_[0] * q_[0];
+  const double q11 = q_[1] * q_[1];
+  const double q22 = q_[2] * q_[2];
+  const double q33 = q_[3] * q_[3];
+  const double unitLength =
+      q00 + q11 + q22 + q33;  // Normalised == 1, otherwise correction divisor.
+  const double abcd = q_[0] * q_[1] + q_[2] * q_[3];
+  const double eps =
+      1e-7;  // TODO: pick from your math lib instead of hardcoding.
+  const double pi = 3.14159265358979323846;  // TODO: pick from your math lib
+                                             // instead of hardcoding.
+  double yaw, pitch, roll;
+  if (abcd > (0.5 - eps) * unitLength) {
+    yaw = 2 * atan2(q_[2], q_[0]);
+    pitch = pi;
+    roll = 0;
+  } else if (abcd < (-0.5 + eps) * unitLength) {
+    yaw = -2 * ::atan2(q_[2], q_[0]);
+    pitch = -pi;
+    roll = 0;
+  } else {
+    const double adbc = q_[0] * q_[3] - q_[1] * q_[2];
+    const double acbd = q_[0] * q_[2] - q_[1] * q_[3];
+    yaw = ::atan2(2 * adbc, 1 - 2 * (q33 + q11));
+    pitch = ::asin(2 * abcd / unitLength);
+    roll = ::atan2(2 * acbd, 1 - 2 * (q22 + q11));
+  }
+
+  return std::array<double, 3> {yaw, pitch, roll};
 }
