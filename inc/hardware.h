@@ -6,6 +6,9 @@
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/sensor.h>
 
+/* std headers */
+#include <array>
+
 namespace RbfpidBalbot {
 namespace hardware {
 
@@ -14,6 +17,7 @@ extern const struct device *imu;
 
 int CheckHardware();
 int InitHardware();
+int ReadIMU(std::array<double, 3> &accel, std::array<double, 3> &gyro);
 
 };  // namespace hardware
 };  // namespace RbfpidBalbot
