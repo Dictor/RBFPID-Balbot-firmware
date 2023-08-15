@@ -28,7 +28,7 @@ void AppMain(void) {
   LOG_INF("application started");
   LOG_INF("RBF-PID Balbot");
 
-  const int dt_ms = 4;
+  const int dt_ms = 2;
   std::array<double, 3> d_accel, d_gyro, d_magn, euler;
   std::array<float, 3> f_accel, f_gyro, f_magn;
   std::array<float, 4> quad;
