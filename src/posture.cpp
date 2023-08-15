@@ -236,5 +236,5 @@ array<double, 3> MahonyAHRS::GetEuler() {
     roll = ::atan2(2 * acbd, 1 - 2 * (q22 + q11));
   }
 
-  return std::array<double, 3> {yaw, pitch, roll};
+  return std::array<double, 3> {pitch, roll, yaw};
 }
