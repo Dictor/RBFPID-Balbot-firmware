@@ -2,8 +2,8 @@
     mpu9250@68 {
         compatible = "invensense,mpu9250";
         reg = <0x68>;
-		status = "okay";
-		irq-gpios = <&gpiob 1 GPIO_ACTIVE_HIGH>;
+        status = "okay";
+        irq-gpios = <&gpiob 1 GPIO_ACTIVE_HIGH>;
         gyro-sr-div = <0>;
         gyro-dlpf = <250>;
         gyro-fs = <250>;
@@ -12,7 +12,33 @@
     };
 };
 
+&timers1 {
+    status = "okay";
+
+    pwm1: pwm { // node label malfuntional in here
+        status = "okay";
+        pinctrl-0 = <&tim1_ch3_pa10 &tim1_ch4_pa11>;
+        pinctrl-names = "default";
+    };
+
+    qdec {
+        compatible = "st,stm32-qdec";
+        status = "okay";
+        pinctrl-0 = <&tim1_ch1_pa8 &tim1_ch2_pa9>;
+        pinctrl-names = "default";
+        st,counts-per-revolution = <1320>;
+    };
+};
+
 / {
+    buttons {
+        compatible = "gpio-keys";
+        m_fault: m_fault {
+            gpios = <&gpiob 0 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+            label = "Motor fault signal";
+        };
+    };
+
     leds {
         compatible = "gpio-leds";
         run_led: led_pd1 {
@@ -23,5 +49,21 @@
             gpios = <&gpiob 4 GPIO_ACTIVE_HIGH>;
             label = "Error LED";
         };
+        m_off: led_pa7 {
+            gpios = <&gpioa 7 GPIO_ACTIVE_HIGH>;
+            label = "Motor off signal";
+        };
     };
+
+    pwm-leds {
+		compatible = "pwm-leds";
+		status = "okay";
+
+		m_in1: pwm_pa10 {
+			pwms = <&pwm1 0 PWM_MSEC(1) PWM_POLARITY_NORMAL>;
+		};
+        m_in2: pwm_pa11 {
+			pwms = <&pwm1 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>;
+		};
+	};
 };
