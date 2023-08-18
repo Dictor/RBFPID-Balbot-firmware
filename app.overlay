@@ -15,7 +15,7 @@
 &timers1 {
     status = "okay";
 
-    pwm1: pwm { // node label malfuntional in here
+    pwm1: pwm {
         status = "okay";
         pinctrl-0 = <&tim1_ch3_pa10 &tim1_ch4_pa11>;
         pinctrl-names = "default";
@@ -27,6 +27,16 @@
         pinctrl-0 = <&tim1_ch1_pa8 &tim1_ch2_pa9>;
         pinctrl-names = "default";
         st,counts-per-revolution = <1320>;
+    };
+};
+
+&timers2 {
+    status = "okay";
+
+    pwm2: pwm {
+        status = "okay";
+        pinctrl-0 = <&tim2_ch1_pa5 &tim2_ch2_pa1>;
+        pinctrl-names = "default";
     };
 };
 
@@ -49,21 +59,30 @@
             gpios = <&gpiob 4 GPIO_ACTIVE_HIGH>;
             label = "Error LED";
         };
-        m_off: led_pa7 {
-            gpios = <&gpioa 7 GPIO_ACTIVE_HIGH>;
+        m_off: out_pa7 {
+            gpios = <&gpioa 7 GPIO_ACTIVE_LOW>;
             label = "Motor off signal";
+        };
+        m_mode: out_pa6 {
+            gpios = <&gpioa 6 GPIO_ACTIVE_LOW>;
+            label = "Motor mode signal";
         };
     };
 
     pwm-leds {
 		compatible = "pwm-leds";
 		status = "okay";
-
 		m_in1: pwm_pa10 {
 			pwms = <&pwm1 0 PWM_MSEC(1) PWM_POLARITY_NORMAL>;
 		};
         m_in2: pwm_pa11 {
 			pwms = <&pwm1 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>;
+		};
+        m_in3: pwm_pa5 {
+			pwms = <&pwm2 0 PWM_MSEC(1) PWM_POLARITY_NORMAL>;
+		};
+        m_in4: pwm_pa1 {
+			pwms = <&pwm2 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>;
 		};
 	};
 };
