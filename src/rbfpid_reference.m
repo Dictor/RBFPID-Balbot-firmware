@@ -38,7 +38,7 @@ if isempty(flag)
     kp = init_kp;
     ki = init_ki;
     kd = init_kd;
-    X = zeros(n, 1);
+    X = zeros(1, n);
     Ck = zeros(m, n);
     Ck1 = zeros(m, n);
     Ck2 = zeros(m, n);

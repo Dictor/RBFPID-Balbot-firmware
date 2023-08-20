@@ -1,6 +1,7 @@
 #include "../inc/rbfpid.h"
 
 #include <zephyr/logging/log.h>
+#include <zephyr/zephyr.h>
 
 #include <cmath>
 
@@ -22,7 +23,7 @@ RBFPID::RBFPID(int n, int m, double gain_mg, double init_kp, double init_ki,
       kp_(init_kp),
       ki_(init_ki),
       kd_(init_kd),
-      X_(n, 1),
+      X_(1, n),
       Ck_(m, n),
       Ck1_(m, n),
       Ck2_(m, n),
@@ -38,7 +39,7 @@ RBFPID::RBFPID(int n, int m, double gain_mg, double init_kp, double init_ki,
       lr_(lr),
       u_limit_(u_limit),
       gain_mg_(gain_mg) {
-  X_ = MatrixXd::Zero(m, 1);
+  X_ = MatrixXd::Zero(1, n);
   Ck_ = MatrixXd::Zero(m, n);
   Ck1_ = MatrixXd::Zero(m, n);
   Ck2_ = MatrixXd::Zero(m, n);
