@@ -3,6 +3,9 @@
 
 #include "../Eigen/Dense"
 
+#include <string>
+#include <iostream>
+
 namespace RbfpidBalbot {
 namespace control {
 class RBFPID {
@@ -53,6 +56,12 @@ class RBFPID {
    * @return double output (input of plant)
    */
   double Update(double e, double y);
+
+  std::string ToString() {
+       std::ostringstream ss;
+       ss << "kp " << kp_ << " ki " << ki_ << " kd " << kd_;
+       return ss.str();
+  }
 };
 };  // namespace control
 };  // namespace RbfpidBalbot
