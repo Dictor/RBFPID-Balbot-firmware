@@ -4,6 +4,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 #include <stdio.h>
+#include <string>
 
 #include "../inc/hardware.h"
 #include "../inc/posture.h"
@@ -34,7 +35,7 @@ void AppMain(void) {
   std::array<float, 3> f_accel, f_gyro, f_magn;
   std::array<float, 4> quad;
   posture::MahonyAHRS mahony((float)dt_ms / 1000, 10, 50);
-  control::RBFPID pid(3, 8, 0.25, 0.01, 0.01, 0.01, 100);
+  control::RBFPID pid(3, 8, pow(10, 6), 0.01, 0.01, 0.01, 100);
   long i = 0;
   double u;
 
@@ -58,8 +59,8 @@ void AppMain(void) {
     quad = mahony.GetQuaternion();
     u = pid.Update(-euler[0], euler[0]);
 
-    if (i % 3 == 0) {
-      LOG_INF("p %f r %f y %f u %f", euler[0], euler[1], euler[2], u);
+    if (i % 5 == 0) {
+      LOG_PRINTK("e %6f u %6f %s\n", -euler[0], u, pid.ToString().c_str());
       //LOG_INF("q %f %f %f %f", quad[0], quad[1], quad[2], quad[3]);
     }
   }
