@@ -19,10 +19,12 @@ void AppMain(void) {
   LOG_INF("hardware initialization start");
   if (int ret = hardware::CheckHardware() < 0) {
     LOG_ERR("fail to check hardware, ret=%d", ret);
+    gpio_pin_set_dt(&hardware::err_led, 1);
     return;
   }
   if (int ret = hardware::InitHardware() < 0) {
     LOG_ERR("fail to initiate hardware, ret=%d", ret);
+    gpio_pin_set_dt(&hardware::err_led, 1);
     return;
   }
   LOG_INF("hardware initialization complete");
@@ -32,6 +34,7 @@ void AppMain(void) {
   LOG_INF("RBF-PID Balbot");
 
   const int dt_ms = 2;
+  const double u_motor_factor = 100;
   std::array<double, 3> d_accel, d_gyro, d_magn, euler;
   std::array<float, 3> f_accel, f_gyro, f_magn;
   std::array<float, 4> quad;
@@ -46,6 +49,7 @@ void AppMain(void) {
 
     if (int ret = hardware::ReadIMU(d_accel, d_gyro, d_magn) < 0) {
       LOG_ERR("fail to read IMU, ret=%d", ret);
+      gpio_pin_set_dt(&hardware::err_led, 1);
       continue;
     }
 
@@ -59,9 +63,10 @@ void AppMain(void) {
     euler = mahony.GetEuler();
     quad = mahony.GetQuaternion();
     u = pid.Update(-euler[0], euler[0]);
-
+    hardware::SetMotor(false, (u / u_motor_factor) + 0.4);
     if (i % 5 == 0) {
       LOG_PRINTK("e %6f u %6f %s\n", -euler[0], u, pid.ToString().c_str());
+      gpio_pin_toggle_dt(&hardware::run_led);
       //LOG_INF("q %f %f %f %f", quad[0], quad[1], quad[2], quad[3]);
     }
   }
