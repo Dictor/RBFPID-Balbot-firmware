@@ -4,6 +4,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 #include <stdio.h>
+#include <vector>
 
 #include "../inc/hardware.h"
 #include "../inc/posture.h"
@@ -34,6 +35,7 @@ void AppMain(void) {
   std::array<float, 4> quad;
   posture::MahonyAHRS mahony((float)dt_ms / 1000, 10, 50);
   long i = 0;
+
   for (;;) {
     k_sleep(K_MSEC(dt_ms));
     i++;
