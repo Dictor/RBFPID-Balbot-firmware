@@ -52,6 +52,7 @@ int hardware::InitHardware() {
   gpio_pin_configure_dt(&hardware::err_led, GPIO_OUTPUT);
   gpio_pin_configure_dt(&hardware::m_off, GPIO_OUTPUT);
   gpio_pin_configure_dt(&hardware::m_fault, GPIO_INPUT);
+  gpio_pin_configure_dt(&hardware::m_mode, GPIO_OUTPUT);
   gpio_pin_set_dt(&hardware::m_mode, 1);  // m_mode is active low
 
   return 0;
@@ -89,7 +90,7 @@ int hardware::SetMotor(bool off, double percentile) {
   if (off) {
     gpio_pin_set_dt(&hardware::m_off, 1);
   } else {
-    uint32_t pulse = abs((uint32_t)(period * percentile));
+    uint32_t pulse = (uint32_t)(period * std::abs(percentile));
     gpio_pin_set_dt(&hardware::m_off, 0);
     if (pulse >= (uint32_t)period) pulse = (uint32_t)period;
 
@@ -99,11 +100,13 @@ int hardware::SetMotor(bool off, double percentile) {
     0      | 1      - reverse
     1      | 0      - forward
     1      | 1      - brake
+
+    Left and Right motor attached at frame with counter direction
     */
     pwm_set_dt(&hardware::m_in1, period, percentile <= 0 ? 0 : pulse);
     pwm_set_dt(&hardware::m_in2, period, percentile >= 0 ? 0 : pulse);
-    pwm_set_dt(&hardware::m_in3, period, percentile <= 0 ? 0 : pulse);
-    pwm_set_dt(&hardware::m_in4, period, percentile >= 0 ? 0 : pulse);
+    pwm_set_dt(&hardware::m_in3, period, percentile >= 0 ? 0 : pulse);
+    pwm_set_dt(&hardware::m_in4, period, percentile <= 0 ? 0 : pulse);
   }
   return 0;
 }
