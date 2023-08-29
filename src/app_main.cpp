@@ -17,12 +17,12 @@ using namespace RbfpidBalbot;
 
 void AppMain(void) {
   LOG_INF("hardware initialization start");
-  if (int ret = hardware::CheckHardware() < 0) {
+  if (int ret = hardware::CheckHardware(); ret < 0) {
     LOG_ERR("fail to check hardware, ret=%d", ret);
     gpio_pin_set_dt(&hardware::err_led, 1);
     return;
   }
-  if (int ret = hardware::InitHardware() < 0) {
+  if (int ret = hardware::InitHardware(); ret < 0) {
     LOG_ERR("fail to initiate hardware, ret=%d", ret);
     gpio_pin_set_dt(&hardware::err_led, 1);
     return;
@@ -47,7 +47,7 @@ void AppMain(void) {
     k_sleep(K_MSEC(dt_ms));
     i++;
 
-    if (int ret = hardware::ReadIMU(d_accel, d_gyro, d_magn) < 0) {
+    if (int ret = hardware::ReadIMU(d_accel, d_gyro, d_magn); ret < 0) {
       LOG_ERR("fail to read IMU, ret=%d", ret);
       gpio_pin_set_dt(&hardware::err_led, 1);
       continue;
