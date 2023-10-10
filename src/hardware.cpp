@@ -103,10 +103,10 @@ int hardware::SetMotor(bool off, double percentile) {
 
     Left and Right motor attached at frame with counter direction
     */
-    pwm_set_dt(&hardware::m_in1, period, percentile <= 0 ? 0 : pulse);
-    pwm_set_dt(&hardware::m_in2, period, percentile >= 0 ? 0 : pulse);
-    pwm_set_dt(&hardware::m_in3, period, percentile >= 0 ? 0 : pulse);
-    pwm_set_dt(&hardware::m_in4, period, percentile <= 0 ? 0 : pulse);
+    pwm_set_dt(&hardware::m_in1, (uint32_t)period, percentile <= 0 ? 0 : pulse);
+    pwm_set_dt(&hardware::m_in2, (uint32_t)period, percentile >= 0 ? 0 : pulse);
+    pwm_set_dt(&hardware::m_in3, (uint32_t)period, percentile >= 0 ? 0 : pulse);
+    pwm_set_dt(&hardware::m_in4, (uint32_t)period, percentile <= 0 ? 0 : pulse);
   }
   return 0;
 }
