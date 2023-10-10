@@ -34,14 +34,14 @@ void AppMain(void) {
   LOG_INF("RBF-PID Balbot");
 
   const int dt_ms = 2;
-  const double u_motor_factor = 100;
+  const double u_motor_factor = 2500;
   std::array<double, 3> d_accel, d_gyro, d_magn, euler;
   std::array<float, 3> f_accel, f_gyro, f_magn;
   std::array<float, 4> quad;
-  posture::MahonyAHRS mahony((float)dt_ms / 1000, 10, 50);
-  control::RBFPID pid(3, 8, pow(10, 6), 0.01, 0.01, 0.01, 100);
+  posture::MahonyAHRS mahony((float)dt_ms / 1000, 100, 500);
+  control::RBFPID pid(3, 8, pow(10, 6), 0.01, 10000, 0.01, 100);
   long i = 0;
-  double u;
+  double u, uf;
 
   for (;;) {
     k_sleep(K_MSEC(dt_ms));
@@ -63,9 +63,10 @@ void AppMain(void) {
     euler = mahony.GetEuler();
     quad = mahony.GetQuaternion();
     u = pid.Update(-euler[0], euler[0]);
-    hardware::SetMotor(false, (u / u_motor_factor) + 0.4);
-    if (i % 5 == 0) {
-      LOG_PRINTK("e %6f u %6f %s\n", -euler[0], u, pid.ToString().c_str());
+    uf = (u / u_motor_factor); //+ (u >= 0 ? 0.3 : -0.3);
+    hardware::SetMotor(false, uf);
+    if (i % 100 == 0) {
+      LOG_INF("e %6f u %6f uf %6f %s", -euler[0], u, uf, pid.ToString().c_str());
       gpio_pin_toggle_dt(&hardware::run_led);
       //LOG_INF("q %f %f %f %f", quad[0], quad[1], quad[2], quad[3]);
     }
