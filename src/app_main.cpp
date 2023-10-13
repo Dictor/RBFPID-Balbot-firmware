@@ -1,11 +1,11 @@
 #include "../inc/app_main.h"
-#include "../inc/hardware.h"
 
+#include <stdio.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
-#include <stdio.h>
-#include <vector>
+
 #include <string>
+#include <vector>
 
 #include "../inc/hardware.h"
 #include "../inc/posture.h"
@@ -42,6 +42,8 @@ void AppMain(void) {
   control::RBFPID pid(3, 8, pow(10, 6), 0.01, 10000, 0.01, 100);
   long i = 0;
   double u, uf;
+  char telemetry[100];
+  auto gain = pid.ReadGain();
 
   for (;;) {
     k_sleep(K_MSEC(dt_ms));
@@ -59,16 +61,21 @@ void AppMain(void) {
       f_magn[i] = (float)d_magn[i];
     }
 
-    mahony.Update(f_gyro[0], f_gyro[1], f_gyro[2], f_accel[0], f_accel[1], f_accel[2], f_magn[0], f_magn[1], f_magn[2]);
+    mahony.Update(f_gyro[0], f_gyro[1], f_gyro[2], f_accel[0], f_accel[1],
+                  f_accel[2], f_magn[0], f_magn[1], f_magn[2]);
     euler = mahony.GetEuler();
     quad = mahony.GetQuaternion();
     u = pid.Update(-euler[0], euler[0]);
-    uf = (u / u_motor_factor); //+ (u >= 0 ? 0.3 : -0.3);
+    uf = (u / u_motor_factor);  //+ (u >= 0 ? 0.3 : -0.3);
     hardware::SetMotor(false, uf);
-    if (i % 100 == 0) {
+    if (i % 10 == 0) {
       LOG_INF("e %6f u %6f uf %6f", -euler[0], u, uf);
       gpio_pin_toggle_dt(&hardware::run_led);
-      //LOG_INF("q %f %f %f %f", quad[0], quad[1], quad[2], quad[3]);
+      gain = pid.ReadGain();
+      sprintf(telemetry, "%.2f,%.2f,%.2f,%.2f,%.2f\n", -euler[0], uf,
+              std::get<0>(gain), std::get<1>(gain), std::get<2>(gain));
+      hardware::SerialTx((uint8_t*)telemetry, strlen(telemetry));
+      // LOG_INF("q %f %f %f %f", quad[0], quad[1], quad[2], quad[3]);
     }
   }
 }

@@ -2,6 +2,7 @@
 #define RBFPIDBALBOT_RBFPID
 
 #include "../Eigen/Dense"
+#include <tuple>
 
 namespace RbfpidBalbot {
 namespace control {
@@ -53,6 +54,8 @@ class RBFPID {
    * @return double output (input of plant)
    */
   double Update(double e, double y);
+
+  std::tuple<double, double, double> ReadGain();
 };
 };  // namespace control
 };  // namespace RbfpidBalbot

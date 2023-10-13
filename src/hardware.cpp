@@ -2,6 +2,7 @@
 
 #include <errno.h>
 #include <stdint.h>
+#include <zephyr/drivers/uart.h>
 #include <zephyr/logging/log.h>
 
 #include <cmath>
@@ -28,6 +29,7 @@ const struct pwm_dt_spec hardware::m_in2 = PWM_DT_SPEC_GET(DT_NODELABEL(m_in2));
 const struct pwm_dt_spec hardware::m_in3 = PWM_DT_SPEC_GET(DT_NODELABEL(m_in3));
 const struct pwm_dt_spec hardware::m_in4 = PWM_DT_SPEC_GET(DT_NODELABEL(m_in4));
 
+const struct device *hardware::serial = DEVICE_DT_GET(DT_NODELABEL(usart2));
 const struct device *hardware::imu = DEVICE_DT_GET_ONE(invensense_mpu9250);
 
 int hardware::CheckHardware() {
@@ -37,8 +39,8 @@ int hardware::CheckHardware() {
   code
   */
   std::vector<const device *> check_list = {
-      run_led.port, err_led.port, imu,      m_off.port,
-      m_fault.port, m_in1.dev,    m_in2.dev};
+      run_led.port, err_led.port, imu,       m_off.port,
+      m_fault.port, m_in1.dev,    m_in2.dev, serial};
 
   for (const auto l : check_list) {
     if (l == NULL) return -EINVAL;
@@ -55,7 +57,14 @@ int hardware::InitHardware() {
   gpio_pin_configure_dt(&hardware::m_mode, GPIO_OUTPUT);
   gpio_pin_set_dt(&hardware::m_mode, 1);  // m_mode is active low
 
-  return 0;
+  struct uart_config uart_cfg = {
+      .baudrate = 115200,
+      .parity = UART_CFG_PARITY_NONE,
+      .stop_bits = UART_CFG_STOP_BITS_1,
+      .data_bits = UART_CFG_DATA_BITS_8,
+      .flow_ctrl = UART_CFG_FLOW_CTRL_NONE,
+  };
+  return uart_configure(serial, &uart_cfg);
 }
 
 int hardware::ReadIMU(std::array<double, 3> &accel, std::array<double, 3> &gyro,
@@ -107,6 +116,13 @@ int hardware::SetMotor(bool off, double percentile) {
     pwm_set_dt(&hardware::m_in2, (uint32_t)period, percentile >= 0 ? 0 : pulse);
     pwm_set_dt(&hardware::m_in3, (uint32_t)period, percentile >= 0 ? 0 : pulse);
     pwm_set_dt(&hardware::m_in4, (uint32_t)period, percentile <= 0 ? 0 : pulse);
+  }
+  return 0;
+}
+
+int hardware::SerialTx(uint8_t *buf, int len) {
+  for (int i = 0; i < len; i++) {
+    uart_poll_out(serial, (unsigned char) buf[i]);
   }
   return 0;
 }

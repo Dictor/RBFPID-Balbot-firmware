@@ -120,3 +120,7 @@ double RBFPID::Update(double e, double y) {
 
   return u_;
 }
+
+std::tuple<double, double, double> RBFPID::ReadGain() {
+  return std::make_tuple(kp_, kd_, ki_);
+}
