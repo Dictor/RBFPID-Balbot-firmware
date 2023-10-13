@@ -66,7 +66,7 @@ void AppMain(void) {
     uf = (u / u_motor_factor); //+ (u >= 0 ? 0.3 : -0.3);
     hardware::SetMotor(false, uf);
     if (i % 100 == 0) {
-      LOG_INF("e %6f u %6f uf %6f %s", -euler[0], u, uf, pid.ToString().c_str());
+      LOG_INF("e %6f u %6f uf %6f", -euler[0], u, uf);
       gpio_pin_toggle_dt(&hardware::run_led);
       //LOG_INF("q %f %f %f %f", quad[0], quad[1], quad[2], quad[3]);
     }
