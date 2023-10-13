@@ -72,8 +72,9 @@ void AppMain(void) {
       LOG_INF("e %6f u %6f uf %6f", -euler[0], u, uf);
       gpio_pin_toggle_dt(&hardware::run_led);
       gain = pid.ReadGain();
-      sprintf(telemetry, "%.2f,%.2f,%.2f,%.2f,%.2f\n", -euler[0], uf,
-              std::get<0>(gain), std::get<1>(gain), std::get<2>(gain));
+      sprintf(telemetry, "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
+              (float)k_uptime_get() / 1000.0F, -euler[0], uf, std::get<0>(gain),
+              std::get<1>(gain), std::get<2>(gain));
       hardware::SerialTx((uint8_t*)telemetry, strlen(telemetry));
       // LOG_INF("q %f %f %f %f", quad[0], quad[1], quad[2], quad[3]);
     }
