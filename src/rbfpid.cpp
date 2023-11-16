@@ -98,7 +98,11 @@ double RBFPID::Update(double e, double y) {
   /* update PID gain */
   kp_ = kp_ + gain_mg_ * mg_ * ek_ * J_ * xc1_;
   ki_ = ki_ + gain_mg_ * mg_ * ek_ * J_ * xc2_;
-  kd_ = kd_ + gain_mg_ * ek_ * J_ * xc3_;
+  kd_ = kd_ + gain_mg_ * mg_ * ek_ * J_ * xc3_;
+
+  if (kp_ < 0) kp_ = 0;
+  if (ki_ < 0) ki_ = 0;
+  if (kd_ < 0) ki_ = 0;
 
   /* calculate pid output */
   du_ = kp_ * xc1_ + ki_ * xc2_ + kd_ * xc3_;
@@ -122,5 +126,5 @@ double RBFPID::Update(double e, double y) {
 }
 
 std::tuple<double, double, double> RBFPID::ReadGain() {
-  return std::make_tuple(kp_, kd_, ki_);
+  return std::make_tuple(kp_, ki_, kd_);
 }

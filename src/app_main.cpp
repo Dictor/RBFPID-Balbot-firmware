@@ -34,12 +34,12 @@ void AppMain(void) {
   LOG_INF("RBF-PID Balbot");
 
   const int dt_ms = 2;
-  const double u_motor_factor = 2500;
+  const double u_motor_factor = 500;
   std::array<double, 3> d_accel, d_gyro, d_magn, euler;
   std::array<float, 3> f_accel, f_gyro, f_magn;
   std::array<float, 4> quad;
-  posture::MahonyAHRS mahony((float)dt_ms / 1000, 100, 500);
-  control::RBFPID pid(3, 8, pow(10, 6), 0.01, 10000, 0.01, 100);
+  posture::MahonyAHRS mahony((float)dt_ms / 1000, 100, 100);
+  control::RBFPID pid(3, 8, pow(10, 4), 100, 300, 10, u_motor_factor * 0.9);
   long i = 0;
   double u, uf;
   char telemetry[100];
@@ -68,7 +68,7 @@ void AppMain(void) {
     u = pid.Update(-euler[0], euler[0]);
     uf = (u / u_motor_factor);  //+ (u >= 0 ? 0.3 : -0.3);
     hardware::SetMotor(false, uf);
-    if (i % 10 == 0) {
+    if (i % 50 == 0) {
       LOG_INF("e %6f u %6f uf %6f", -euler[0], u, uf);
       gpio_pin_toggle_dt(&hardware::run_led);
       gain = pid.ReadGain();
